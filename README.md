@@ -1,13 +1,11 @@
 # OpenWisP System Management Library
 
----
-
+-----
 ## First to use the Firmware and Backup restore functions generate keys
 * usign -G -c "Your KEY Comment Here" -s secure/folder/secret.key -p public/folder/public.key 
 * cp public/folder/public.key etc/opkg/keys/\`usign -F -p public/folder/public.key\`
 * Include etc/opkg/keys/*key_fingerprint* in your firmware and use keys to sign firmwares and files transfered with this Library.
-
----
+-----
 
 ## Library Usage
 
@@ -42,15 +40,13 @@ To run again one time a task just update order number.
 ### Reboot Function.
 #### Function's Description.
 Two sources of reboot possible, System-Management variables or presence of the file /tmp/reboot.request
-
 __For external reboot source__
-      Just do a 'touch /tmp/reboot.request' in one of your script or task.
-
+Just do a 'touch /tmp/reboot.request' in one of your script or task.
 __OpenWisP reboot source__
-      As it's a list, multiple reboot sources can be possible with an individual order number for each.
-      Order number is just compared and if different reboot will be executed.
-      If you want to launch again an already executed reboot task, just change the reboot order value (can be text or number).
-              Reboot odrer variable name:     Reboot_Order_[name of the reboot task]
+As it's a list, multiple reboot sources can be possible with an individual order number for each.
+Order number is just compared and if different reboot will be executed.
+If you want to launch again an already executed reboot task, just change the reboot order value (can be text or number).
+Reboot odrer variable name:     Reboot_Order_[name of the reboot task]
 #### Function's JSON controll structure.
 	"system-management": [ 
 	{ 
@@ -74,37 +70,3 @@ __OpenWisP reboot source__
 
 ### Backup Restore Function.
 
-
-
-`
-{
-    "system-management": [
-        {
-            "config_name": "system",
-            "config_value": "system",
-            "Extra_Packages": [
-                "extra_package_01",
-                "extra_package_02"
-            ],
-            "Needed_Packages": [
-                "asterisk16",
-                "msmtp-nossl"
-            ],
-            "Execute_Tasks": [
-                "My_Task_01",
-                "My_Task_02"
-            ],
-            "Task_File_My_Task_01": "/tmp/my_task_01.sh",
-            "Task_File_My_Task_02": "/tmp/my_task_02.sh",
-            "Task_Order_My_Task_01": "0002",
-            "Task_Order_My_Task_02": "0002",
-            "Reboot_Tasks": [
-                "My_Reboot_01",
-                "My_Reboot_02"
-            ],
-            "Reboot_Order_My_Reboot_01": "0001",
-            "Reboot_Order_My_Reboot_02": "0001"
-        }
-    ]
-}
-`
