@@ -35,11 +35,15 @@ Order number is just compared and if different task request is executed (can be 
 	} 
 	]
 
+--
+
 ### Reboot Function.
 #### Function's Description.
 Two sources of reboot possible, System-Management variables or presence of the file /tmp/reboot.request  
+
 __For external reboot source__  
 Just do a 'touch /tmp/reboot.request' in one of your script or task.  
+
 __OpenWisP reboot source__  
 As it's a list, multiple reboot sources can be possible with an individual order number for each. Order number is just compared and if different reboot will be executed.If you want to launch again an already executed reboot task, just change the reboot order value (can be text or number).  
 * Reboot odrer variable name:     Reboot_Order_[name of the reboot task]
@@ -57,12 +61,80 @@ As it's a list, multiple reboot sources can be possible with an individual order
 	} 
 	] 
 
+--
 
 ### Install Packages Function.
+#### Function's Description.
+Function called to install and check presence of a list of packages
+As it's a list packages can be integrated in various templates.
+
+#### Function's JSON controll structure.
+	"system-management": [ 
+	{ 
+		"config_name": "system", 
+		"config_value": "system", 
+		"Needed_Packages": [ 
+			"asterisk16", 
+			"msmtp-nossl" 
+		], 
+	} 
+	]
+
+--
 
 ### Remove Package Function.
+#### Function's Description.
+Function called to remove packages and ensure their absence on the system.
+As it's a list packages can be integrated in various templates.
+
+#### Function's JSON controll structure.
+	"system-management": [ 
+	{ 
+		"config_name": "system", 
+		"config_value": "system", 
+		"Extra_Packages": [ 
+			"asterisk16", 
+			"msmtp-nossl" 
+		], 
+	} 
+	]
+
+--
 
 ### Firmware Upgrade Function.
+#### Function's Description.
+Function to upgrade the system firmware. Can be called in Tasks to manage firmware upgrade campain with arguments or via a JSON structure in OpenWisP if no arguments are passed to it.  
+Arguments to set to used it as function in your scripts
+* $1: contain the target system board. Obtained with this command: cat /tmp/sysinfo/board_name or ubus call system board | grep board_name
+* $2: contain the new firmware revision. Obtained with the firmware on the repository.
+* $3: contain the URL of the new firmware. Install 'wget' package if your target is https:// and firmware need to be signed to ensure it's integrity.
+* $4: specify 'no-backup' to launch a sysupgrade without local config backup.
+
+#### Function's JSON controll structure.
+	"system-management": [ 
+	{ 
+		"config_name": "system", 
+		"config_value": "firmware", 
+		"board_name": "tplink,tl-wr902ac-v3", 
+		"revision": "r11208-ce6496d796", 
+		"backup": "no-backup", 
+		"firmware": "http://openwisp.yourserver.org/firmware/openwrt-19.07.4-ramips-mt76x8-tplink_tl-wr902ac-v3-squashfs-sysupgrade.bin" 
+	} 
 
 ### Backup Restore Function.
+#### Function's Description.
+Function to patch the system management package. This function compare the given release in 'system-management.backup.System_Management_Version'
+and if it's above the value of 'SYSTEM_MANAGEMENT_VERSION' in this library it download and restore the backup.
+If you have an HTTPS URL ensure certificates are valid and 'wget' package is installed.
 
+#### Function's JSON controll structure.
+	"system-management": [ 
+	{ 
+		"config_name": "system", 
+		"config_value": "backup", 
+		"System_Management_Version": "2", 
+		"System_Management_URL": "http://openwisp2.yourserver.org/backups/system-mgmt.tar.gz"
+	} 
+	]
+
+  
