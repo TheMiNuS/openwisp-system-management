@@ -5,6 +5,9 @@
 # Libraries to manage system with OpenWisP
 ############################################
 #
+. /usr/share/libubox/jshn.sh 
+#
+SYSTEM_MANAGEMENT_VERSION=2
 #
 #Functions.
 #
@@ -23,12 +26,54 @@ is_opkg_locked()
 #
 is_system_management_records_available()
 {
+	#After a fresh install system-management-records doesn't exist. Call this function before trying to touch it's content to ensure it's presence.
 	uci show system-management-records > /dev/null 2>&1
 	if [ $? -ne 0 ]
 	then
 		echo "config system 'system'" | uci import system-management-records
 		uci commit system-management-records	
 	fi
+}
+#
+#
+#
+# $1 = Source file URL (must contain a file $1.sig to check integrity of file)
+# $2 = Target file for download
+download_and_check_signature()
+{
+	#Download a file and check it's signature validity.
+	local RETURN_CODE=0
+	local URL="$1"
+	local DST="$2"
+	local KEYS_REPO="/etc/opkg/keys"
+	
+	if [ ! -z $URL ] && [ ! -z $DST ]
+	then
+		if wget -q $URL -O $DST > /dev/null 2>&1
+		then
+			if wget $URL.sig  -O $DST.sig > /dev/null 2>&1
+			then
+				if usign -V -m $DST -s $DST.sig -P $KEYS_REPO > /dev/null 2>&1
+				then
+					RETURN_CODE=0
+					rm $DST.sig
+				else
+					RETURN_CODE=1
+					rm $DST.sig
+					rm $DST
+				fi
+			else
+				RETURN_CODE=1
+				rm $DST
+				rm $DST.sig
+			fi
+		else
+			RETURN_CODE=1
+			rm $DST
+		fi
+	fi
+
+	return $RETURN_CODE
 }
 #
 #
@@ -288,6 +333,7 @@ Remove_Packages_fct()
 #	Task file variable name: 	Task_File_[name of the task]
 #	Task odrer variable name: 	Task_Order_[name of the task]
 # Order number is just compared and if different task request is executed (can be text or number).
+# If Order number is '*' the task is executed at each call.
 # To run again a task just update order number.
 # 
 # Below an exemple of the JSON Structure to use it.
@@ -335,8 +381,14 @@ Execute_Tasks_fct()
 						if [ -f $TASK_FILE ]
 						then
 							Log_Info "Launching task: $TASK_FILE"
-							uci set system-management-records.system.Executed_Task_Order_$TASK="$TASK_ORDER"
-							uci commit system-management-records
+							if [ "$TASK_ORDER" = "*" ]
+							then
+								uci set system-management-records.system.Executed_Task_Order_$TASK="recurring"
+								uci commit system-management-records
+							else
+								uci set system-management-records.system.Executed_Task_Order_$TASK="$TASK_ORDER"
+								uci commit system-management-records
+							fi
 							/bin/sh $TASK_FILE
 							if [ $? -ne 0 ]
 							then
@@ -357,73 +409,122 @@ Execute_Tasks_fct()
 #
 #
 #
-# Function to upgrade the system firmware.
-# 	$1: contain the target system board. Obtained with this command: cat /tmp/sysinfo/board_name or ubus call system board | grep board_name
-#	$2: contain the URL of the new firmware. Install 'wget' package if your target is https://
-#	$3: contain the new target version. ubus call system board | grep version
+# Function to upgrade the system firmware. Can be called in Tasks to manage firmware upgrade campain with arguments or via a JSON structure in OpenWisP if no arguments are passed to it.
 #
-Test_and_Flash_Me()                                        
+#	Arguments to set to used it as function in your scripts
+# 	$1: contain the target system board. Obtained with this command: cat /tmp/sysinfo/board_name or ubus call system board | grep board_name
+#	$2: contain the new firmware revision. Obtained with the firmware on the repository.
+#	$3: contain the URL of the new firmware. Install 'wget' package if your target is https:// and firmware need to be signed to ensure it's integrity.
+#	$4: specify 'no-backup' to launch a sysupgrade without local config backup.
+#
+#	Below an exemple of the JSON Structure to use with OpenWisP pre or post reload. Just call the function without arguments.
+#	"system-management": [ 
+#	{ 
+#		"config_name": "system", 
+#		"config_value": "firmware", 
+#		"board_name": "tplink,tl-wr902ac-v3", 
+#		"revision": "r11208-ce6496d796", 
+#		"backup": "no-backup", 
+#		"firmware": "http://openwisp.yourserver.org/firmware/openwrt-19.07.4-ramips-mt76x8-tplink_tl-wr902ac-v3-squashfs-sysupgrade.bin" 
+#	} 
+#	]
+#
+#
+#
+Firmware_Upgrade_fct()                                        
 {
 	local system_board=$1
-	local system_board_firmware=$2
-	local new_firmware_version=$3
+	local new_firmware_revision=$2
+	local system_board_firmware=$3
+	local no_backup=$4
 
-	if [ "`ubus call system board | grep board_name | grep "$system_board" | /usr/bin/wc -l`" -eq 1 ]
+	if [ -z $system_board ] && [ -z $new_firmware_revision ] && [ -z $system_board_firmware ]
 	then
-		if [ "`ubus call system board | grep version | grep "$new_firmware_version" | /usr/bin/wc -l`" -eq 0 ]
+		Log_Info "Firmware upgrade: UCI mode getting version from system-management.firmware"
+		system_board=`uci get system-management.firmware.board_name` > /dev/null 2>&1
+		new_firmware_revision=`uci get system-management.firmware.revision` > /dev/null 2>&1
+		system_board_firmware=`uci get system-management.firmware.firmware` > /dev/null 2>&1
+		no_backup=`uci get system-management.firmware.backup` > /dev/null 2>&1
+	fi
+
+	if [ ! -z $system_board ] && [ ! -z $new_firmware_revision ] && [ ! -z $system_board_firmware ]
+	then
+		json_init
+		json_load "`ubus call system board`"
+		json_get_var board_name board_name
+		json_select release
+		json_get_var version version
+		json_get_var revision revision
+		if [ "$board_name" = "$system_board" ]
 		then
-			Log_Warn "Firmware upgrade: Flashing board $system_board with firmware $system_board_firmware"
-			sysupgrade $system_board_firmware
+			if [ "$version" = "$new_firmware_version" ] && [ "$revision" = "$new_firmware_revision" ]
+			then
+				Log_Warn "Firmware upgrade: I'm a board $system_board already at $new_firmware_revision"
+			else
+				if download_and_check_signature $system_board_firmware /tmp/new_firmware.bin
+				then
+					case $no_backup in
+   						no-backup)
+							Log_Warn "Firmware upgrade: Flashing board $system_board with firmware $system_board_firmware without config backup"
+							sysupgrade -n /tmp/new_firmware.bin
+							;;
+						*)
+							Log_Warn "Firmware upgrade: Flashing board $system_board with firmware $system_board_firmware with config backup"
+							sysupgrade /tmp/new_firmware.bin
+							;;
+					esac
+				else
+					Log_Error "Firmware upgrade: Failed to download the firmware $system_board_firmware and check it's signature"
+				fi
+			fi
+
 		else
-			Log_Warn "Firmware upgrade: I'm a board $system_board already at $new_firmware_version"
+			Log_Info "Firmware upgrade: I'm not a $system_board"
 		fi
 	else
-		Log_Info "Firmware upgrade: I'm not a $system_board"
+		Log_Warn "Firmware upgrade: Calling Test_and_Flash_Me without enough arguments"
 	fi
 }
 #
 #
 #
-# Function to patch the system management package.
-# 	$1: contain the URL of the file.
-#	$2: contain the MD5SUM of the version that will be used to check it's integrity and if an upgrade is needed.
+# Function to patch the system management package. This function compare the given release in 'system-management.backup.System_Management_Version'
+# and if it's above the value of 'SYSTEM_MANAGEMENT_VERSION' in this library it download and restore the backup.
+# If you have an HTTPS URL ensure certificates are valid and 'wget' package is installed.
 #
-Patch_System_Package()
+# Below an exemple of the JSON Structure to use it.
+#	"system-management": [ 
+#	{ 
+#		"config_name": "system", 
+#		"config_value": "backup", 
+#		"System_Management_Version": "2", 
+#		"System_Management_URL": "http://openwisp2.yourserver.org/backups/system-mgmt.tar.gz"
+#	} 
+#	]
+#
+Backup_Upgrade_fct()
 {
-	is_system_management_records_available
-	local actual_system_management_version=`uci get system-management-records.system.System_Management_Version`
-	local system_management_url="$1"
-	local system_management_version="$2"
-	local md5sum
+	local new_system_management_version
+	local new_system_management_url
+	new_system_management_version=`uci get system-management.backup.System_Management_Version`  > /dev/null 2>&1
+	new_system_management_url=`uci get system-management.backup.System_Management_URL`  > /dev/null 2>&1
 
-	Log_Info "System management version $actual_system_management_version upgrade called with URL=$system_management_url and Version=$system_management_version"
-
-	if [ "$system_management_url" != ""  ] && [ "$system_management_version" != "" ]
+	if [ ! -z $new_system_management_version ] && [ ! -z $new_system_management_url ]
 	then
-		if [ "$actual_system_management_version" = "$system_management_version" ]
+		if [ "$new_system_management_version" -gt "$SYSTEM_MANAGEMENT_VERSION" ]
 		then
-			Log_Info "Already up to date"
-		else
-			wget $system_management_url -O /tmp/new_sys_mgmt.tar.gz
-			if [ $? -eq 0 ]
+			if download_and_check_signature $new_system_management_url /tmp/new-system-management.tar.gz
 			then
-				md5sum=`md5sum /tmp/new_sys_mgmt.tar.gz | awk '{ print $1 }'`
-				if [ "$md5sum" = "$system_management_version" ]
-				then
-					Log_Warn "Upgrading System-Management to version $system_management_version from URL $system_management_url"
-					uci set system-management-records.system.System_Management_Version="$system_management_version"
-					uci commit system-management-records
-					sysupgrade -r /tmp/new_sys_mgmt.tar.gz
-					touch /tmp/reboot.request
-				else
-					Log_Error "Attempting to upgrade System-Management with an invalid MD5SUM $md5sum $system_management_version"
-				fi
+				Log_Warn "Upgrading System-Management to version $new_system_management_version from URL $new_system_management_url"
+				sysupgrade -r /tmp/new-system-management.tar.gz
 			else
-				Log_Error "Upgrading System-Management with an invalid URL $system_management_url"
+				Log_Error "Update_System_Management: Failed to download and check signature"
 			fi
+		else
+			Log_Warn "Update_System_Management: Already up to date"
 		fi
 	else
-		Log_Error "Trying to Patch system without a proper invocation"
+		Log_Info "Update_System_Management: No new version available"
 	fi
 }
 #

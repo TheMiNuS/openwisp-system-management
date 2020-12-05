@@ -1,7 +1,6 @@
 #!/bin/sh
 ############################################
 # Copyright (C) 24/10/2020 - Brice GIBOUDEAU
-# brice@pingus.org
 #
 # Libraries to manage system with OpenWisP
 ############################################
@@ -11,12 +10,15 @@
 . /etc/openwisp/openwisp-system-management.sh
 #
 #
+Backup_Upgrade_fct
+#
+Firmware_Upgrade_fct
 #
 Remove_Packages_fct
 #
 Install_Packages_fct
 #
-# Execute_Tasks_fct
+Execute_Tasks_fct
 #
 #
 #

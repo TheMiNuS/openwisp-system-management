@@ -1,19 +1,14 @@
-# openwisp-system-management
-OpenWRT system backup to enable OpenWisP on an OpenWRT Vanillia release.
+# OpenWisP System Management Library
 
+---
 
+## First to use the Firmware and Backup restore functions generate keys
+*usign -G -c "Your KEY Comment Here" -s secure/folder/secret.key -p public/folder/public.key 
+*cp public/folder/public.key etc/opkg/keys/`usign -F -p public/folder/public.key`
 
-etc/dropbear/authorized_keys
+---
 
-usign -F -p public.key 
-etc/opkg/keys/
-etc/opkg/keys/307d38f854c7e513
-
-etc/config/openwisp
-etc/opkg/openwisp.conf
-
-lib/upgrade/keep.d/openwisp
-
+## Library Usage
 
 {
     "system-management": [

@@ -1,7 +1,6 @@
 #!/bin/sh
 ############################################
 # Copyright (C) 24/10/2020 - Brice GIBOUDEAU
-# brice@pingus.org
 #
 # Libraries to manage system with OpenWisP
 ############################################
@@ -14,19 +13,8 @@
 #
 REBOOT_FLAG=0
 #
-# Remove_Packages_fct
-#
-# Install_Packages_fct
-#
-Execute_Tasks_fct
 #
 Do_I_Need_To_Reboot
-#
-if [ $REBOOT_FLAG -ge 1 ]
-then
-	Log_Info "Rebooting on request"
-	/sbin/reboot -d 5
-fi
 #
 #
 #
