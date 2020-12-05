@@ -26,7 +26,6 @@
      To run again one time a task just update order number.
 
 #### Function's JSON controll structure.
-`
 	"system-management": [ 
 	{ 
 	"config_name": "system", 
@@ -41,7 +40,6 @@
 	"Task_Order_MyTask_02": "*", 
 	} 
 ]
-`
 
 ### Reboot Function.
 
