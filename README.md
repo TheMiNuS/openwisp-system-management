@@ -1,21 +1,6 @@
-# openwisp-system-management
-OpenWRT system backup to enable OpenWisP on an OpenWRT Vanillia release.
+# openwisp-system-management library usage
 
-
-
-etc/dropbear/authorized_keys
-
-usign -F -p public.key 
-etc/opkg/keys/
-etc/opkg/keys/307d38f854c7e513
-
-etc/config/openwisp
-etc/opkg/openwisp.conf
-
-lib/upgrade/keep.d/openwisp
-
-
-{
+``{
     "system-management": [
         {
             "config_name": "system",
@@ -44,4 +29,4 @@ lib/upgrade/keep.d/openwisp
             "Reboot_Order_My_Reboot_02": "0001"
         }
     ]
-}
+}``
