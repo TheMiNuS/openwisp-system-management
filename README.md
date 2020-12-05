@@ -14,10 +14,10 @@
 Function used to run tasks on the system. Tasks are ran only once no matter it's exit code. As it's a list you can have tasks associated to your various templates.  
 Each task need to have a task file to run and an order number.
 * Task file variable name:        Task_File_[name of the task]
-* Task odrer variable name:       Task_Order_[name of the task]
+* Task odrer variable name:       Task_Order_[name of the task]  
 Order number is just compared and if different task request is executed (can be text or number).
 * If Order number is '*' the task is executed at each call.
-* To run again one time a task just update order number.
+* To run again one time a task just update order number.  
 #### Function's JSON controll structure.
 	"system-management": [ 
 	{ 
