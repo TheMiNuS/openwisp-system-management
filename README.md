@@ -32,7 +32,7 @@ Each task need to have a task file to run and an order number.
 Order number is just compared and if different task request is executed (can be text or number).
 * If Order number is '*' the task is executed at each call.
 * To run again one time a task just update order number.  
-#### Function JSON controll structure.
+#### Function JSON structure exemple.
 	{
 		"system-management": [ 
 		{ 
@@ -62,7 +62,7 @@ Just do a 'touch /tmp/reboot.request' in one of your script or task.
 __OpenWisP reboot source__  
 As it's a list, multiple reboot sources can be possible with an individual order number for each. Order number is just compared and if different reboot will be executed.If you want to launch again an already executed reboot task, just change the reboot order value (can be text or number).  
 * Reboot odrer variable name:     Reboot_Order_[name of the reboot task]
-#### Function JSON controll structure.
+#### Function JSON structure exemple.
 	{
 		"system-management": [ 
 		{ 
@@ -85,7 +85,7 @@ As it's a list, multiple reboot sources can be possible with an individual order
 Function called to install and check presence of a list of packages
 As it's a list packages can be integrated in various templates.
 
-#### Function JSON controll structure.
+#### Function JSON structure exemple.
 	{
 		"system-management": [ 
 		{ 
@@ -106,7 +106,7 @@ As it's a list packages can be integrated in various templates.
 Function called to remove packages and ensure their absence on the system.
 As it's a list packages can be integrated in various templates.
 
-#### Function JSON controll structure.
+#### Function JSON structure exemple.
 	{
 		"system-management": [ 
 		{ 
@@ -131,7 +131,7 @@ Arguments to set to used it as function in your scripts
 * $3: contain the URL of the new firmware. Install 'wget' package if your target is https:// and firmware need to be signed to ensure it's integrity.
 * $4: specify 'no-backup' to launch a sysupgrade without local config backup.
 
-#### Function JSON controll structure.
+#### Function JSON structure exemple.
 	{
 		"system-management": [ 
 		{ 
@@ -148,11 +148,12 @@ Arguments to set to used it as function in your scripts
 
 ### Backup Restore Function.
 #### Function Description.
-Function to patch the system management package. This function compare the given release in 'system-management.backup.System_Management_Version'
+Function to patch the system management package.  
+This function compare the given release in 'system-management.backup.System_Management_Version'
 and if it's above the value of 'SYSTEM_MANAGEMENT_VERSION' in this library it download and restore the backup.
 If you have an HTTPS URL ensure certificates are valid and 'wget' package is installed.
 
-#### Function JSON controll structure.
+#### Function JSON structure exemple.
 	{
 		"system-management": [ 
 		{ 
