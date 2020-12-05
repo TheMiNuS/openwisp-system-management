@@ -3,13 +3,13 @@
 ---
 
 ## First to use the Firmware and Backup restore functions generate keys
-*usign -G -c "Your KEY Comment Here" -s secure/folder/secret.key -p public/folder/public.key 
-*cp public/folder/public.key etc/opkg/keys/`usign -F -p public/folder/public.key`
+* usign -G -c "Your KEY Comment Here" -s secure/folder/secret.key -p public/folder/public.key 
+* cp public/folder/public.key etc/opkg/keys/\`usign -F -p public/folder/public.key\`
 
 ---
 
 ## Library Usage
-
+`
 {
     "system-management": [
         {
@@ -40,3 +40,4 @@
         }
     ]
 }
+`
