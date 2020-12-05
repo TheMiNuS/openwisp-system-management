@@ -1,6 +1,7 @@
 # openwisp-system-management library usage
 
-``{
+``
+{
     "system-management": [
         {
             "config_name": "system",
@@ -29,4 +30,5 @@
             "Reboot_Order_My_Reboot_02": "0001"
         }
     ]
-}``
+}
+``
