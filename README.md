@@ -1,16 +1,27 @@
 # OpenWisP System Management Library
 
+This Library enable functions missing in OpenWisP Controller.
+* Tasks execution.
+* Remote reboot order.
+* Packages installation and removal.
+* Firmware upgrade.
+* System backup update.
+
+To use this library with OpenWisP, include it on your system and call desired fonctions in pre or post reload hooks.
+
 -----
-## First to use the Firmware and Backup restore functions generate keys
+
+## To use Firmware and Backup restore functions generate keys for your system
 * usign -G -c "Your KEY Comment Here" -s secure/folder/secret.key -p public/folder/public.key 
 * cp public/folder/public.key etc/opkg/keys/\`usign -F -p public/folder/public.key\`
-* Include etc/opkg/keys/*key_fingerprint* in your firmware and use keys to sign firmwares and files transfered with this Library.
+* Include etc/opkg/keys/*key_fingerprint* in your firmware and use keys to sign firmwares and package repository used by Library.
+
 -----
 
 ## Library Usage
 
 ### Execute Tasks Function.
-#### Function's Description.
+#### Function Description.
 Function used to run tasks on the system. Tasks are ran only once no matter it's exit code. As it's a list you can have tasks associated to your various templates.  
 Each task need to have a task file to run and an order number.
 * Task file variable name:        Task_File_[name of the task]
@@ -19,7 +30,7 @@ Each task need to have a task file to run and an order number.
 Order number is just compared and if different task request is executed (can be text or number).
 * If Order number is '*' the task is executed at each call.
 * To run again one time a task just update order number.  
-#### Function's JSON controll structure.
+#### Function JSON controll structure.
 	"system-management": [ 
 	{ 
 		"config_name": "system", 
@@ -38,7 +49,7 @@ Order number is just compared and if different task request is executed (can be 
 ---
 
 ### Reboot Function.
-#### Function's Description.
+#### Function Description.
 Two sources of reboot possible, System-Management variables or presence of the file /tmp/reboot.request  
 
 __For external reboot source__  
@@ -47,7 +58,7 @@ Just do a 'touch /tmp/reboot.request' in one of your script or task.
 __OpenWisP reboot source__  
 As it's a list, multiple reboot sources can be possible with an individual order number for each. Order number is just compared and if different reboot will be executed.If you want to launch again an already executed reboot task, just change the reboot order value (can be text or number).  
 * Reboot odrer variable name:     Reboot_Order_[name of the reboot task]
-#### Function's JSON controll structure.
+#### Function JSON controll structure.
 	"system-management": [ 
 	{ 
 		"config_name": "system", 
@@ -68,7 +79,7 @@ As it's a list, multiple reboot sources can be possible with an individual order
 Function called to install and check presence of a list of packages
 As it's a list packages can be integrated in various templates.
 
-#### Function's JSON controll structure.
+#### Function JSON controll structure.
 	"system-management": [ 
 	{ 
 		"config_name": "system", 
@@ -83,11 +94,11 @@ As it's a list packages can be integrated in various templates.
 ---
 
 ### Remove Package Function.
-#### Function's Description.
+#### Function Description.
 Function called to remove packages and ensure their absence on the system.
 As it's a list packages can be integrated in various templates.
 
-#### Function's JSON controll structure.
+#### Function JSON controll structure.
 	"system-management": [ 
 	{ 
 		"config_name": "system", 
@@ -102,7 +113,7 @@ As it's a list packages can be integrated in various templates.
 ---
 
 ### Firmware Upgrade Function.
-#### Function's Description.
+#### Function Description.
 Function to upgrade the system firmware. Can be called in Tasks to manage firmware upgrade campain with arguments or via a JSON structure in OpenWisP if no arguments are passed to it.  
 Arguments to set to used it as function in your scripts
 * $1: contain the target system board. Obtained with this command: cat /tmp/sysinfo/board_name or ubus call system board | grep board_name
@@ -110,7 +121,7 @@ Arguments to set to used it as function in your scripts
 * $3: contain the URL of the new firmware. Install 'wget' package if your target is https:// and firmware need to be signed to ensure it's integrity.
 * $4: specify 'no-backup' to launch a sysupgrade without local config backup.
 
-#### Function's JSON controll structure.
+#### Function JSON controll structure.
 	"system-management": [ 
 	{ 
 		"config_name": "system", 
@@ -124,12 +135,12 @@ Arguments to set to used it as function in your scripts
 ---
 
 ### Backup Restore Function.
-#### Function's Description.
+#### Function Description.
 Function to patch the system management package. This function compare the given release in 'system-management.backup.System_Management_Version'
 and if it's above the value of 'SYSTEM_MANAGEMENT_VERSION' in this library it download and restore the backup.
 If you have an HTTPS URL ensure certificates are valid and 'wget' package is installed.
 
-#### Function's JSON controll structure.
+#### Function JSON controll structure.
 	"system-management": [ 
 	{ 
 		"config_name": "system", 
