@@ -8,6 +8,7 @@ This Library enable functions missing in OpenWisP Controller.
 * System backup update.
 
 To use this library with OpenWisP, include it on your system and call desired fonctions in pre or post reload hooks.  
+  
 __JSON Structures below__ have to be included in your __templates__ or directly in the __device configuration__ using __advanced mode button__.
 
 -----
