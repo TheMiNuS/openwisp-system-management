@@ -8,6 +8,7 @@ This Library enable functions missing in OpenWisP Controller.
 * System backup update.
 
 To use this library with OpenWisP, include it on your system and call desired fonctions in pre or post reload hooks.
+JSON Structures have to be included in your templates or directly in the device configuration using advanced mode button.
 
 -----
 
@@ -31,20 +32,22 @@ Order number is just compared and if different task request is executed (can be 
 * If Order number is '*' the task is executed at each call.
 * To run again one time a task just update order number.  
 #### Function JSON controll structure.
-	"system-management": [ 
-	{ 
-		"config_name": "system", 
-		"config_value": "system", 
-		"Execute_Tasks": [ 
-			"MyTask_01", 
-			"MyTask_02" 
-		], 
-		"Task_File_MyTask_01": "/tmp/my_task_01.sh", 
-		"Task_File_MyTask_02": "/tmp/my_task_02.sh", 
-		"Task_Order_MyTask_01": "0001", 
-		"Task_Order_MyTask_02": "*", 
-	} 
-	]
+	{
+		"system-management": [ 
+		{ 
+			"config_name": "system", 
+			"config_value": "system", 
+			"Execute_Tasks": [ 
+				"MyTask_01", 
+				"MyTask_02" 
+			], 
+			"Task_File_MyTask_01": "/tmp/my_task_01.sh", 
+			"Task_File_MyTask_02": "/tmp/my_task_02.sh", 
+			"Task_Order_MyTask_01": "0001", 
+			"Task_Order_MyTask_02": "*", 
+		} 
+		]
+	}
 
 ---
 
@@ -59,18 +62,20 @@ __OpenWisP reboot source__
 As it's a list, multiple reboot sources can be possible with an individual order number for each. Order number is just compared and if different reboot will be executed.If you want to launch again an already executed reboot task, just change the reboot order value (can be text or number).  
 * Reboot odrer variable name:     Reboot_Order_[name of the reboot task]
 #### Function JSON controll structure.
-	"system-management": [ 
-	{ 
-		"config_name": "system", 
-		"config_value": "system", 
-		"Reboot_Tasks": [ 
-		"MyReboot01", 
-		"MyReboot02" 
-		], 
-		"Reboot_Order_MyReboot01": "0001", 
-		"Reboot_Order_MyReboot02": "0001" 
+	{
+		"system-management": [ 
+		{ 
+			"config_name": "system", 
+			"config_value": "system", 
+			"Reboot_Tasks": [ 
+			"MyReboot01", 
+			"MyReboot02" 
+			], 
+			"Reboot_Order_MyReboot01": "0001", 
+			"Reboot_Order_MyReboot02": "0001" 
+		} 
+		]
 	} 
-	] 
 
 ---
 
@@ -80,16 +85,18 @@ Function called to install and check presence of a list of packages
 As it's a list packages can be integrated in various templates.
 
 #### Function JSON controll structure.
-	"system-management": [ 
-	{ 
-		"config_name": "system", 
-		"config_value": "system", 
-		"Needed_Packages": [ 
-			"asterisk16", 
-			"msmtp-nossl" 
-		], 
-	} 
-	]
+	{
+		"system-management": [ 
+		{ 
+			"config_name": "system", 
+			"config_value": "system", 
+			"Needed_Packages": [ 
+				"asterisk16", 
+				"msmtp-nossl" 
+			], 
+		} 
+		]
+	}
 
 ---
 
@@ -99,16 +106,18 @@ Function called to remove packages and ensure their absence on the system.
 As it's a list packages can be integrated in various templates.
 
 #### Function JSON controll structure.
-	"system-management": [ 
-	{ 
-		"config_name": "system", 
-		"config_value": "system", 
-		"Extra_Packages": [ 
-			"asterisk16", 
-			"msmtp-nossl" 
-		], 
-	} 
-	]
+	{
+		"system-management": [ 
+		{ 
+			"config_name": "system", 
+			"config_value": "system", 
+			"Extra_Packages": [ 
+				"asterisk16", 
+				"msmtp-nossl" 
+			], 
+		} 
+		]
+	}
 
 ---
 
@@ -122,14 +131,16 @@ Arguments to set to used it as function in your scripts
 * $4: specify 'no-backup' to launch a sysupgrade without local config backup.
 
 #### Function JSON controll structure.
-	"system-management": [ 
-	{ 
-		"config_name": "system", 
-		"config_value": "firmware", 
-		"board_name": "tplink,tl-wr902ac-v3", 
-		"revision": "r11208-ce6496d796", 
-		"backup": "no-backup", 
-		"firmware": "http://openwisp.yourserver.org/firmware/openwrt-19.07.4-ramips-mt76x8-tplink_tl-wr902ac-v3-squashfs-sysupgrade.bin" 
+	{
+		"system-management": [ 
+		{ 
+			"config_name": "system", 
+			"config_value": "firmware", 
+			"board_name": "tplink,tl-wr902ac-v3", 
+			"revision": "r11208-ce6496d796", 
+			"backup": "no-backup", 
+			"firmware": "http://openwisp.yourserver.org/firmware/openwrt-19.07.4-ramips-mt76x8-tplink_tl-wr902ac-v3-squashfs-sysupgrade.bin" 
+		}
 	} 
 
 ---
@@ -141,13 +152,14 @@ and if it's above the value of 'SYSTEM_MANAGEMENT_VERSION' in this library it do
 If you have an HTTPS URL ensure certificates are valid and 'wget' package is installed.
 
 #### Function JSON controll structure.
-	"system-management": [ 
-	{ 
-		"config_name": "system", 
-		"config_value": "backup", 
-		"System_Management_Version": "2", 
-		"System_Management_URL": "http://openwisp2.yourserver.org/backups/system-mgmt.tar.gz"
-	} 
-	]
+	{
+		"system-management": [ 
+		{ 
+			"config_name": "system", 
+			"config_value": "backup", 
+			"System_Management_Version": "2", 
+			"System_Management_URL": "http://openwisp2.yourserver.org/backups/system-mgmt.tar.gz"
+		} 
+		]
+	}
 
-  
