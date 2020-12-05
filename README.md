@@ -35,7 +35,7 @@ Order number is just compared and if different task request is executed (can be 
 	} 
 	]
 
---
+---
 
 ### Reboot Function.
 #### Function's Description.
@@ -61,7 +61,7 @@ As it's a list, multiple reboot sources can be possible with an individual order
 	} 
 	] 
 
---
+---
 
 ### Install Packages Function.
 #### Function's Description.
@@ -80,7 +80,7 @@ As it's a list packages can be integrated in various templates.
 	} 
 	]
 
---
+---
 
 ### Remove Package Function.
 #### Function's Description.
@@ -99,7 +99,7 @@ As it's a list packages can be integrated in various templates.
 	} 
 	]
 
---
+---
 
 ### Firmware Upgrade Function.
 #### Function's Description.
@@ -120,6 +120,8 @@ Arguments to set to used it as function in your scripts
 		"backup": "no-backup", 
 		"firmware": "http://openwisp.yourserver.org/firmware/openwrt-19.07.4-ramips-mt76x8-tplink_tl-wr902ac-v3-squashfs-sysupgrade.bin" 
 	} 
+
+---
 
 ### Backup Restore Function.
 #### Function's Description.
